@@ -3,6 +3,10 @@ import { box, toon, addOutline } from './toon.js';
 import { Character } from './character.js';
 import { RiggedCharacter } from './rigged.js';
 import sanychModel from './models/sanych.glb?url';
+import palychModel from './models/palych.glb?url';
+import swipeModel from './models/swipe.glb?url';
+import hypeModel from './models/hype.glb?url';
+import deadinsideModel from './models/deadinside.glb?url';
 
 // The six heroes from the "Скуфы против зумеров" concept sheets, built from primitives.
 // Camps: garage = «Гаражный союз» (orange), feed = «Поколение ленты» (blue).
@@ -51,6 +55,8 @@ export const HEROES = [
   {
     id: 'palych',
     name: 'Палыч',
+    model: palychModel,
+    modelHeight: 2.0,
     role: 'бумер, танк',
     camp: 'garage',
     skin: SKIN,
@@ -125,6 +131,8 @@ export const HEROES = [
   {
     id: 'swipe',
     name: 'Свайп',
+    model: swipeModel,
+    modelHeight: 1.9,
     role: 'зумер, разведчик',
     camp: 'feed',
     skin: PALE,
@@ -173,6 +181,8 @@ export const HEROES = [
   {
     id: 'hype',
     name: 'Хайп',
+    model: hypeModel,
+    modelHeight: 1.95,
     role: 'зумер-стример, поддержка',
     camp: 'feed',
     skin: PALE,
@@ -232,6 +242,8 @@ export const HEROES = [
   {
     id: 'deadinside',
     name: 'Дед Инсайд',
+    model: deadinsideModel,
+    modelHeight: 1.95,
     role: 'думер, скрытность',
     camp: 'feed',
     skin: PALE,
@@ -329,7 +341,7 @@ export const HEROES = [
   },
 ];
 
-// Until every hero has a generated model, the ones without use Sanych's
+// Ночной Админ has no generated model yet and borrows Sanych's
 for (const h of HEROES) {
   h.model ??= sanychModel;
   h.modelHeight ??= 1.95;
