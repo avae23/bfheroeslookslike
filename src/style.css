@@ -103,9 +103,10 @@ canvas { display: block; }
 #overlay {
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(40, 70, 110, 0.45);
+  display: flex;
+  align-items: center;
+  padding-left: max(32px, 6vw);
+  background: linear-gradient(90deg, rgba(40, 70, 110, 0.55), rgba(40, 70, 110, 0) 60%);
   cursor: pointer;
 }
 #overlay.hidden { display: none; }
@@ -119,8 +120,36 @@ canvas { display: block; }
   box-shadow: 0 8px 0 #3a2c1a;
   text-align: center;
 }
-.card h1 { margin: 0 0 4px; font-size: 40px; color: #e8632b; }
-.card .sub { margin: 0 0 16px; font-size: 18px; }
+.card h1 { margin: 0 0 4px; font-size: 34px; color: #e8632b; }
+.card .sub { margin: 0 0 14px; font-size: 16px; }
+.card .play { margin: 14px 0 10px; font-size: 17px; font-weight: bold; }
+
+#hero-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.hero-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 3px solid #3a2c1a;
+  border-left-width: 8px;
+  border-radius: 12px;
+  background: #fff;
+  color: #3a2c1a;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hero-btn b { font-size: 16px; }
+.hero-btn span { font-size: 12px; opacity: 0.75; }
+.hero-btn.camp-garage { border-left-color: #ff7a1a; }
+.hero-btn.camp-feed { border-left-color: #2bb8f0; }
+.hero-btn:hover, .hero-btn:focus-visible { background: #fff3d6; outline: none; }
+.hero-btn.selected { background: #ffe2a8; box-shadow: 0 3px 0 #3a2c1a; }
 .card table { margin: 0 auto; border-spacing: 14px 4px; font-size: 16px; }
 .card td:first-child { font-weight: bold; text-align: right; }
 .card td:last-child { text-align: left; }

@@ -13,8 +13,9 @@ const gradientMap = (() => {
 const cache = new Map();
 
 export function toon(color, opts = {}) {
+  if (opts.unique) return new THREE.MeshToonMaterial({ color, gradientMap, ...stripUnique(opts) });
   const key = `${color}|${JSON.stringify(opts)}`;
-  if (!opts.unique && cache.has(key)) return cache.get(key);
+  if (cache.has(key)) return cache.get(key);
   const mat = new THREE.MeshToonMaterial({ color, gradientMap, ...stripUnique(opts) });
   if (!opts.unique) {
     mat.userData.shared = true;
@@ -29,6 +30,7 @@ function stripUnique(opts) {
 }
 
 const outlineMat = new THREE.MeshBasicMaterial({ color: 0x1d1a24, side: THREE.BackSide });
+outlineMat.userData.shared = true;
 
 // Inverted-hull outline: a slightly bigger copy rendered from the back faces.
 export function addOutline(mesh, thickness = 0.06) {

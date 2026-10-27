@@ -5,6 +5,7 @@ import { Bot } from './bots.js';
 import { Effects } from './effects.js';
 import { Grenade } from './grenade.js';
 import { controls } from './controls.js';
+import { HEROES, CAMPS, heroById } from './heroes.js';
 
 const MAG_SIZE = 30;
 const FIRE_INTERVAL = 0.11;
@@ -28,11 +29,62 @@ const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 30
 
 const world = new World(scene);
 const effects = new Effects(scene);
-const player = new Player(scene, world, camera);
+function savedHeroId() {
+  try {
+    return localStorage.getItem('hero');
+  } catch {
+    return null;
+  }
+}
+
+let hero = heroById(savedHeroId() ?? 'palych');
+const enemiesOf = (h) => HEROES.filter((e) => e.camp !== h.camp);
+const pick = (list) => list[Math.floor(Math.random() * list.length)];
+
+const player = new Player(scene, world, camera, hero);
+player.showcase = true;
 const bots = [];
 for (let i = 0; i < BOT_COUNT; i++) {
-  bots.push(new Bot(scene, world, world.spawnPoints[(i * 5) % world.spawnPoints.length]));
+  const enemies = enemiesOf(hero);
+  const bot = new Bot(scene, world, world.spawnPoints[(i * 5) % world.spawnPoints.length], enemies[i % enemies.length]);
+  bot.roster = enemies;
+  bots.push(bot);
 }
+
+function selectHero(next) {
+  const campChanged = next.camp !== hero.camp;
+  hero = next;
+  try {
+    localStorage.setItem('hero', next.id);
+  } catch {}
+  player.setHero(next);
+  if (campChanged) {
+    const enemies = enemiesOf(next);
+    bots.forEach((bot, i) => {
+      bot.roster = enemies;
+      bot.setHero(enemies[i % enemies.length]);
+      bot.respawn(pick(world.spawnPoints));
+    });
+  }
+  renderHeroList();
+}
+
+const heroList = document.getElementById('hero-list');
+function renderHeroList() {
+  heroList.innerHTML = '';
+  for (const h of HEROES) {
+    const btn = document.createElement('button');
+    btn.className = `hero-btn camp-${h.camp}${h === hero ? ' selected' : ''}`;
+    btn.innerHTML = `<b>${h.name}</b><span>${h.role}</span>`;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectHero(h);
+    });
+    heroList.append(btn);
+  }
+  document.getElementById('hero-camp').textContent = `${CAMPS[hero.camp]} против «${CAMPS[enemiesOf(hero)[0].camp]}»`;
+}
+renderHeroList();
 const grenades = [];
 
 const hud = {
@@ -57,6 +109,7 @@ const state = {
 // --- Input -----------------------------------------------------------------
 
 hud.overlay.addEventListener('click', async () => {
+  player.showcase = false;
   try {
     await renderer.domElement.requestPointerLock();
   } catch {
@@ -67,6 +120,7 @@ hud.overlay.addEventListener('click', async () => {
 document.addEventListener('pointerlockchange', () => {
   const locked = document.pointerLockElement === renderer.domElement;
   hud.overlay.classList.toggle('hidden', locked);
+  player.showcase = !locked && !controls.fallback;
   if (!locked) state.firing = false;
   if (locked) controls.fallback = false;
 });
@@ -125,7 +179,7 @@ function shoot() {
   effects.tracer(muzzle, best.point);
 
   if (best.bot) {
-    const head = best.point.y > best.bot.body.pos.y + 1.45;
+    const head = best.point.y > best.bot.body.pos.y + best.bot.model.headY;
     const dmg = head ? HEAD_DAMAGE : BODY_DAMAGE;
     const killed = best.bot.damage(dmg, dir.clone().setY(0).multiplyScalar(1.5));
     effects.impact(best.point, best.normal, head ? 0xffd23a : 0xff6b4d);
@@ -201,6 +255,7 @@ function updateWeapons(dt) {
 }
 
 function updateHud(dt) {
+  document.getElementById('hud').hidden = player.showcase;
   hud.ammo.textContent = state.reloading > 0 ? '…' : state.ammo;
   hud.ammoPill.classList.toggle('warn', state.ammo <= 5 || state.reloading > 0);
   hud.kills.textContent = state.kills;
@@ -242,4 +297,4 @@ function frame(time) {
 requestAnimationFrame(frame);
 
 // Handy for poking at things from the devtools console
-window.game = { scene, player, bots, world, shoot, explode, throwGrenade };
+window.game = { scene, player, bots, world, shoot, explode, throwGrenade, selectHero, HEROES };

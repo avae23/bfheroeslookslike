@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Soldier } from './soldier.js';
+import { Character } from './character.js';
 import { Body } from './physics.js';
 import { controls } from './controls.js';
 
@@ -10,11 +10,11 @@ const CAM_DISTANCE = 5;
 const SHOULDER = 0.9;
 
 export class Player {
-  constructor(scene, world, camera) {
+  constructor(scene, world, camera, hero) {
+    this.scene = scene;
     this.world = world;
     this.camera = camera;
-    this.model = new Soldier();
-    scene.add(this.model.root);
+    this.setHero(hero);
     this.body = new Body(0.4, 1.9);
     this.body.pos.set(0, 0, 8);
 
@@ -32,6 +32,16 @@ export class Player {
       this.yaw -= e.movementX * MOUSE_SENS;
       this.pitch = THREE.MathUtils.clamp(this.pitch - e.movementY * MOUSE_SENS, -1.2, 1.0);
     });
+  }
+
+  setHero(hero) {
+    if (this.model) {
+      this.scene.remove(this.model.root);
+      this.model.dispose();
+    }
+    this.hero = hero;
+    this.model = new Character(hero, hero.camp);
+    this.scene.add(this.model.root);
   }
 
   forward(out = new THREE.Vector3()) {
@@ -65,10 +75,20 @@ export class Player {
       speed: Math.hypot(b.vel.x, b.vel.z),
       onGround: b.onGround,
       aimPitch: this.pitch,
-      aiming: true,
+      aiming: !this.showcase,
     });
 
-    this.updateCamera(dt);
+    if (this.showcase) this.showcaseCamera();
+    else this.updateCamera(dt);
+  }
+
+  // Front view of the hero for the hero-select screen
+  showcaseCamera() {
+    const f = this.forward();
+    const right = new THREE.Vector3(-f.z, 0, f.x);
+    const target = this.body.pos.clone().add(new THREE.Vector3(0, 1.35, 0));
+    this.camera.position.copy(target).addScaledVector(f, 2.8).addScaledVector(right, 0.9).add(new THREE.Vector3(0, 0.1, 0));
+    this.camera.lookAt(target.addScaledVector(right, 0.9));
   }
 
   updateCamera(dt) {

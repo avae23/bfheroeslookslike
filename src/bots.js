@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Soldier } from './soldier.js';
+import { Character } from './character.js';
 import { Body } from './physics.js';
 import { MAP_HALF } from './world.js';
 
@@ -8,13 +8,12 @@ const RESPAWN_TIME = 3;
 
 // Target dummies that wander the town. They don't shoot back yet.
 export class Bot {
-  constructor(scene, world, spawn) {
+  constructor(scene, world, spawn, hero) {
     this.scene = scene;
     this.world = world;
-    this.model = new Soldier({ uniform: 0xc0473a, helmet: 0x8f2f27, accent: 0x2b2b2b });
     this.body = new Body(0.45, 1.95);
     this.box = new THREE.Box3();
-    scene.add(this.model.root);
+    this.setHero(hero);
 
     this.hpBar = new THREE.Group();
     const back = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.12), new THREE.MeshBasicMaterial({ color: 0x1d1a24 }));
@@ -24,6 +23,17 @@ export class Bot {
     scene.add(this.hpBar);
 
     this.respawn(spawn);
+  }
+
+  setHero(hero) {
+    if (this.model) {
+      this.scene.remove(this.model.root);
+      this.model.dispose();
+    }
+    this.hero = hero;
+    this.model = new Character(hero, hero.camp);
+    this.body.height = this.model.height;
+    this.scene.add(this.model.root);
   }
 
   respawn(spawn) {
@@ -113,6 +123,7 @@ export class Bot {
         r.scale.setScalar(Math.max(k, 0.001));
       }
       if (this.deadTime > RESPAWN_TIME) {
+        if (this.roster) this.setHero(this.roster[Math.floor(Math.random() * this.roster.length)]);
         this.respawn(spawns[Math.floor(Math.random() * spawns.length)]);
       }
       this.model.animate(dt, { speed: 0, onGround: false, aiming: false });
