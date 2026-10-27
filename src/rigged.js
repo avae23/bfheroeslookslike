@@ -11,11 +11,30 @@ const loader = new GLTFLoader();
 const GUN = 0x34363d;
 const X = new THREE.Vector3(1, 0, 0);
 
+// Inlined models arrive as data: URLs; decode them directly, since sandboxed pages
+// may refuse fetch() even for data: URLs
+async function loadModel(url) {
+  if (!url.startsWith('data:')) return loader.loadAsync(url);
+  const bin = atob(url.slice(url.indexOf(',') + 1));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  // Embedded textures become blob: URLs. ImageBitmapLoader fetch()es them, which the
+  // sandbox blocks; hiding createImageBitmap makes GLTFLoader use <img> loading instead.
+  const createImageBitmap = globalThis.createImageBitmap;
+  globalThis.createImageBitmap = undefined;
+  try {
+    return await loader.parseAsync(bytes.buffer, '');
+  } finally {
+    globalThis.createImageBitmap = createImageBitmap;
+  }
+}
+
+// A hero whose model fails to load keeps its primitive build instead of blanking the game
 export async function loadHeroModels(heroes) {
   const byUrl = new Map();
   await Promise.all(
     heroes.filter((h) => h.model).map(async (h) => {
-      if (!byUrl.has(h.model)) byUrl.set(h.model, loader.loadAsync(h.model));
+      if (!byUrl.has(h.model)) byUrl.set(h.model, loadModel(h.model).catch((err) => console.error('Model failed', h.id, err)));
       h.gltf = await byUrl.get(h.model);
     }),
   );
