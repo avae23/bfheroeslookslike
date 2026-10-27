@@ -289,6 +289,7 @@ function frame(time) {
   player.update(dt);
   updateWeapons(dt);
   for (const bot of bots) bot.update(dt, camera, world.spawnPoints);
+  world.update(dt, time / 1000);
   effects.update(dt);
   updateHud(dt);
   renderer.render(scene, camera);

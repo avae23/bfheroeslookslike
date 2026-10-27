@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 export const GRAVITY = 24;
+const STEP_UP = 0.45;
 
 // Upright box body; pos is at the feet.
 export class Body {
@@ -22,6 +23,14 @@ export class Body {
     );
   }
 
+  // Walk up stairs and kerbs instead of bumping into them
+  stepOnto(b) {
+    const rise = b.max.y - this.pos.y;
+    if (rise > STEP_UP || this.vel.y > 2) return false;
+    this.pos.y = b.max.y;
+    return true;
+  }
+
   step(dt, colliders) {
     this.vel.y -= GRAVITY * dt;
     const p = this.pos;
@@ -29,13 +38,13 @@ export class Body {
 
     p.x += this.vel.x * dt;
     for (const b of colliders) {
-      if (!this.overlaps(b)) continue;
+      if (!this.overlaps(b) || this.stepOnto(b)) continue;
       p.x = p.x < (b.min.x + b.max.x) / 2 ? b.min.x - r : b.max.x + r;
     }
 
     p.z += this.vel.z * dt;
     for (const b of colliders) {
-      if (!this.overlaps(b)) continue;
+      if (!this.overlaps(b) || this.stepOnto(b)) continue;
       p.z = p.z < (b.min.z + b.max.z) / 2 ? b.min.z - r : b.max.z + r;
     }
 

@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { Character } from './character.js';
 import { Body } from './physics.js';
-import { MAP_HALF } from './world.js';
 
 const MAX_HP = 100;
 const RESPAWN_TIME = 3;
@@ -51,15 +50,16 @@ export class Bot {
     this.updateHpBar();
   }
 
+  // Head for a random waypoint, following the nav graph so stairs get used
   pickTarget() {
-    for (let i = 0; i < 10; i++) {
-      const x = (Math.random() - 0.5) * (MAP_HALF * 2 - 6);
-      const z = (Math.random() - 0.5) * (MAP_HALF * 2 - 6);
-      if (!this.world.blocked(x, z, 1)) {
-        this.target = new THREE.Vector3(x, 0, z);
-        break;
-      }
-    }
+    const world = this.world;
+    const from = world.nearestNode(this.body.pos);
+    let to = from;
+    while (to === from) to = world.nav[Math.floor(Math.random() * world.nav.length)];
+    this.path = world.route(from, to).map((p) =>
+      p.clone().add(new THREE.Vector3((Math.random() - 0.5) * 2, 0, (Math.random() - 0.5) * 2)),
+    );
+    this.target = this.path.shift();
     this.idle = Math.random() < 0.3 ? 0.5 + Math.random() * 1.5 : 0;
     this.stuckTime = 0;
   }
@@ -138,8 +138,9 @@ export class Bot {
       const dx = this.target.x - b.pos.x;
       const dz = this.target.z - b.pos.z;
       const dist = Math.hypot(dx, dz);
-      if (dist < 1) {
-        this.pickTarget();
+      if (dist < 1.2) {
+        if (this.path.length) this.target = this.path.shift();
+        else this.pickTarget();
       } else {
         const speed = 4;
         tx = (dx / dist) * speed;

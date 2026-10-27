@@ -206,7 +206,7 @@ export class Character {
     if (s.belly) {
       const belly = part(new THREE.Mesh(new THREE.IcosahedronGeometry(s.belly.r, 1), toon(s.belly.color ?? s.top)));
       belly.scale.set(1.15, 1, 1);
-      belly.position.set(0, s.belly.y, -s.torso.d / 2 + s.belly.r * 0.55);
+      belly.position.set(0, s.belly.y, -s.torso.d / 2 - s.belly.r * 0.1);
       belly.castShadow = true;
       addOutline(belly, 0.03);
       this.torso.add(belly);

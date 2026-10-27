@@ -16,7 +16,7 @@ export class Player {
     this.camera = camera;
     this.setHero(hero);
     this.body = new Body(0.4, 1.9);
-    this.body.pos.set(0, 0, 8);
+    this.body.pos.copy(world.playerSpawn);
 
     this.yaw = 0;
     this.pitch = -0.1;
