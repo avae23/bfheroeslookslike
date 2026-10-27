@@ -329,6 +329,12 @@ export const HEROES = [
   },
 ];
 
+// Until every hero has a generated model, the ones without use Sanych's
+for (const h of HEROES) {
+  h.model ??= sanychModel;
+  h.modelHeight ??= 1.95;
+}
+
 export const CAMPS = {
   garage: 'Гаражный союз',
   feed: 'Поколение ленты',

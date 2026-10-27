@@ -12,9 +12,11 @@ const GUN = 0x34363d;
 const X = new THREE.Vector3(1, 0, 0);
 
 export async function loadHeroModels(heroes) {
+  const byUrl = new Map();
   await Promise.all(
     heroes.filter((h) => h.model).map(async (h) => {
-      h.gltf = await loader.loadAsync(h.model);
+      if (!byUrl.has(h.model)) byUrl.set(h.model, loader.loadAsync(h.model));
+      h.gltf = await byUrl.get(h.model);
     }),
   );
 }
@@ -77,6 +79,20 @@ export class RiggedCharacter {
     this.muzzle.position.z = -0.75;
     this.gun.add(this.muzzle);
     this.root.add(this.gun);
+
+    // Team armband on the left upper arm, so shared models still read as two sides
+    const upperArm = this.bones.LeftArm;
+    const foreArm = this.bones.LeftForeArm;
+    if (upperArm && foreArm) {
+      const band = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 10, 1, true), toon(TEAM_COLORS[team], { side: THREE.DoubleSide }));
+      // Size in model units, converted into the bone's own (often centimetre) scale
+      const len = this.rest.get(upperArm).pos.distanceTo(this.rest.get(foreArm).pos);
+      const unit = upperArm.getWorldScale(new THREE.Vector3()).x / scale;
+      band.scale.set((len * 0.8) / unit, (len * 0.28) / unit, (len * 0.8) / unit);
+      band.position.copy(foreArm.position).multiplyScalar(0.55);
+      band.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), foreArm.position.clone().normalize());
+      upperArm.add(band);
+    }
 
     this.height = spec.modelHeight;
     this.headY = spec.modelHeight * 0.7;
