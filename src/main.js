@@ -6,6 +6,7 @@ import { Effects } from './effects.js';
 import { Grenade } from './grenade.js';
 import { controls } from './controls.js';
 import { HEROES, CAMPS, heroById } from './heroes.js';
+import { loadHeroModels } from './rigged.js';
 
 const MAG_SIZE = 30;
 const FIRE_INTERVAL = 0.11;
@@ -28,6 +29,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 300);
 
 const world = new World(scene);
+await loadHeroModels(HEROES);
 const effects = new Effects(scene);
 function savedHeroId() {
   try {

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Character } from './character.js';
+import { makeCharacter } from './heroes.js';
 import { Body } from './physics.js';
 import { controls } from './controls.js';
 
@@ -40,7 +40,7 @@ export class Player {
       this.model.dispose();
     }
     this.hero = hero;
-    this.model = new Character(hero, hero.camp);
+    this.model = makeCharacter(hero, hero.camp);
     this.scene.add(this.model.root);
   }
 

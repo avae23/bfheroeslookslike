@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { box, toon, addOutline } from './toon.js';
+import { Character } from './character.js';
+import { RiggedCharacter } from './rigged.js';
+import sanychModel from './models/sanych.glb?url';
 
 // The six heroes from the "Скуфы против зумеров" concept sheets, built from primitives.
 // Camps: garage = «Гаражный союз» (orange), feed = «Поколение ленты» (blue).
@@ -86,6 +89,8 @@ export const HEROES = [
   {
     id: 'sanych',
     name: 'Саныч',
+    model: sanychModel,
+    modelHeight: 1.95,
     role: 'скуф-рыбак, контроль',
     camp: 'garage',
     skin: SKIN,
@@ -328,6 +333,10 @@ export const CAMPS = {
   garage: 'Гаражный союз',
   feed: 'Поколение ленты',
 };
+
+export function makeCharacter(spec, team) {
+  return spec.gltf ? new RiggedCharacter(spec, team) : new Character(spec, team);
+}
 
 export function heroById(id) {
   return HEROES.find((h) => h.id === id) ?? HEROES[0];
