@@ -4,6 +4,7 @@ import { Player } from './player.js';
 import { Bot } from './bots.js';
 import { Effects } from './effects.js';
 import { Grenade } from './grenade.js';
+import { controls } from './controls.js';
 
 const MAG_SIZE = 30;
 const FIRE_INTERVAL = 0.11;
@@ -55,20 +56,28 @@ const state = {
 
 // --- Input -----------------------------------------------------------------
 
-hud.overlay.addEventListener('click', () => renderer.domElement.requestPointerLock());
+hud.overlay.addEventListener('click', async () => {
+  try {
+    await renderer.domElement.requestPointerLock();
+  } catch {
+    controls.fallback = true;
+    hud.overlay.classList.add('hidden');
+  }
+});
 document.addEventListener('pointerlockchange', () => {
   const locked = document.pointerLockElement === renderer.domElement;
   hud.overlay.classList.toggle('hidden', locked);
   if (!locked) state.firing = false;
+  if (locked) controls.fallback = false;
 });
 addEventListener('mousedown', (e) => {
-  if (e.button === 0 && document.pointerLockElement) state.firing = true;
+  if (e.button === 0 && controls.active) state.firing = true;
 });
 addEventListener('mouseup', (e) => {
   if (e.button === 0) state.firing = false;
 });
 addEventListener('keydown', (e) => {
-  if (!document.pointerLockElement) return;
+  if (!controls.active) return;
   if (e.code === 'KeyR') startReload();
   if (e.code === 'KeyQ') throwGrenade();
 });

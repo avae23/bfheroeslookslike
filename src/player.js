@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Soldier } from './soldier.js';
 import { Body } from './physics.js';
+import { controls } from './controls.js';
 
 const RUN_SPEED = 7.5;
 const JUMP_SPEED = 8.5;
@@ -27,7 +28,7 @@ export class Player {
     addEventListener('keyup', (e) => this.keys.delete(e.code));
     addEventListener('blur', () => this.keys.clear());
     addEventListener('mousemove', (e) => {
-      if (!document.pointerLockElement) return;
+      if (!controls.active) return;
       this.yaw -= e.movementX * MOUSE_SENS;
       this.pitch = THREE.MathUtils.clamp(this.pitch - e.movementY * MOUSE_SENS, -1.2, 1.0);
     });
