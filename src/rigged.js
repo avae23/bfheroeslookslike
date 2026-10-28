@@ -66,6 +66,9 @@ export class RiggedCharacter {
         this.meshes.push(o);
       }
     });
+    // Some Tripo exports leave the bones out of their bind pose (the hips sit at the origin,
+    // unturned), which sinks and twists the body and throws off every posed rotation
+    for (const mesh of this.meshes) mesh.skeleton?.pose();
 
     const bbox = new THREE.Box3().setFromObject(this.inner);
     const scale = spec.modelHeight / (bbox.max.y - bbox.min.y);
