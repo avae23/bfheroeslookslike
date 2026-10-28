@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Скуфы против зумеров</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="hud">
+      <div id="crosshair"></div>
+      <div id="hitmarker"></div>
+      <div id="stats">
+        <div class="pill">Фраги: <b id="kills">0</b></div>
+      </div>
+      <div id="bottom">
+        <div class="pill" id="ammo-pill">Патроны: <b id="ammo">30</b> / 30</div>
+        <div class="skill" id="skill-grenade">
+          <div class="skill-key">Q</div>
+          <div class="skill-icon">💣</div>
+          <div class="skill-cd" id="grenade-cd"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="overlay">
+      <div class="card">
+        <h1>Скуфы против зумеров</h1>
+        <p class="sub" id="hero-camp"></p>
+        <div id="hero-list"></div>
+        <p class="play">Кликни по свободному месту, чтобы играть</p>
+        <table>
+          <tr><td>WASD</td><td>бег</td></tr>
+          <tr><td>Пробел</td><td>прыжок</td></tr>
+          <tr><td>Мышь</td><td>камера</td></tr>
+          <tr><td>ЛКМ</td><td>стрельба</td></tr>
+          <tr><td>R</td><td>перезарядка</td></tr>
+          <tr><td>Q</td><td>граната</td></tr>
+          <tr><td>Esc</td><td>пауза</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
