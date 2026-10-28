@@ -84,6 +84,8 @@ export class RiggedCharacter {
 
     this.inner.rotation.y = Math.PI;
     this.inner.scale.setScalar(scale);
+    // Stand the feet on the ground even if the export didn't put them at y = 0
+    this.inner.position.y = -bbox.min.y * scale;
 
     // Rifle, held at the right hand and pointed along the aim
     this.gun = new THREE.Group();

@@ -43,7 +43,7 @@ npm run dev
 Герой с файлом в `src/models/<id>.glb` и полем `model` в `src/heroes.js` берётся из модели, остальные пока собираются из примитивов.
 
 1. Сгенерировать модель по концепту в Tripo (Image to 3D), затем Авто-риг → Гуманоид, пресет Mixamo, скачать GLB.
-2. Ужать текстуры: `pip install bpy && python3 tools/shrink-model.py -- model.glb src/models/<id>.glb`.
+2. Ужать текстуры: `pip install pillow && python3 tools/shrink-model.py model.glb src/models/<id>.glb`.
 3. В `src/heroes.js` импортировать файл и указать `model` и `modelHeight`.
 
 Позы (бег, прыжок, прицел) задаются в коде по костям Mixamo, см. `src/rigged.js`.
